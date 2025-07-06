@@ -9,7 +9,7 @@ export default function Register() {
   const handleRegister = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("✅ Registered successfully!");
+      alert("✅ Account created! You can now log in.");
     } catch (error) {
       alert("❌ Error: " + error.message);
     }
