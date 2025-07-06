@@ -1,66 +1,66 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import { auth } from "../lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/router";
 
 export default function Generate() {
-  const [prompt, setPrompt] = useState('');
-  const [videoScript, setVideoScript] = useState(null);
+  const [user, setUser] = useState(null);
+  const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        router.push("/login");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleGenerate = async () => {
+    if (!prompt) return;
     setLoading(true);
-    setVideoScript(null);
+    setVideoUrl("");
 
     try {
-      const res = await fetch('/api/generate-video', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
-
-      const data = await res.json();
-      setLoading(false);
-
-      if (data.success) {
-        setVideoScript(data.data.script);
-      } else {
-        alert(data.error || 'Something went wrong.');
-      }
+      // Simulate AI video generation (replace with real API later)
+      const fakeUrl = `https://dummyvideo.com/ai-video-${Date.now()}.mp4`;
+      setTimeout(() => {
+        setVideoUrl(fakeUrl);
+        setLoading(false);
+      }, 3000); // fake 3 sec delay
     } catch (err) {
-      console.error('Error:', err);
-      alert('Failed to generate video.');
+      console.error("Generation failed", err);
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '40px', fontFamily: 'Arial' }}>
-      <h1>🎬 Generate Your AI Video Script</h1>
+    <div>
+      <h1>AI Video Generator</h1>
+      {user && <p>Welcome, {user.email}</p>}
+
       <textarea
+        placeholder="Enter your video idea..."
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Type your video topic or idea here..."
-        rows="6"
-        cols="60"
-        style={{ padding: '12px', fontSize: '16px' }}
+        rows={5}
+        cols={50}
       />
-
       <br />
-      <button
-        onClick={handleGenerate}
-        disabled={loading}
-        style={{
-          marginTop: '20px',
-          padding: '10px 20px',
-          fontSize: '16px',
-          cursor: 'pointer',
-        }}
-      >
-        {loading ? 'Generating...' : 'Generate Video Script'}
+      <button onClick={handleGenerate} disabled={loading}>
+        {loading ? "Generating..." : "Generate Video"}
       </button>
 
-      {videoScript && (
-        <div style={{ marginTop: '40px', background: '#f2f2f2', padding: '20px' }}>
-          <h3>📝 Generated Script:</h3>
-          <p>{videoScript}</p>
+      {videoUrl && (
+        <div>
+          <h3>Here’s your video:</h3>
+          <video src={videoUrl} controls width="400" />
         </div>
       )}
     </div>
