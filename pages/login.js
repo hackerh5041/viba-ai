@@ -1,17 +1,43 @@
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const match = users.find((user) => user.email === email && user.password === password);
+    if (!match) {
+      alert("Invalid credentials");
+      return;
+    }
+
+    localStorage.setItem("currentUser", email);
+    router.push("/dashboard");
+  };
+
   return (
-    <div style={{ padding: 40, fontFamily: 'sans-serif' }}>
-      <h1>🔐 Login</h1>
-      <form>
-        <input type="email" placeholder="Email" required style={{ display: 'block', marginBottom: 10 }} />
-        <input type="password" placeholder="Password" required style={{ display: 'block', marginBottom: 10 }} />
+    <div className="form-container">
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          required
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          required
+          onChange={(e) => setPassword(e.target.value)}
+        />
         <button type="submit">Log In</button>
       </form>
-      <p style={{ marginTop: 20 }}>
-        Don’t have an account? <Link href="/register">Register</Link>
-      </p>
     </div>
   );
 }
