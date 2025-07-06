@@ -1,31 +1,34 @@
-import React from 'react';
-import { useRouter } from 'next/router';
+import { useEffect, useState } from "react";
+import { auth } from "../lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from "next/router";
 
-const Dashboard = () => {
+export default function Dashboard() {
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        router.push("/login"); // redirect if not logged in
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/login");
+  };
+
   return (
-    <div style={{ padding: '40px', textAlign: 'center' }}>
-      <h1>🎛️ Welcome to Your Dashboard</h1>
-      <p>Select a feature below:</p>
-
-      <button
-        onClick={() => router.push('/generate')}
-        style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}
-      >
-        🎬 Generate a Video
-      </button>
-
-      <br />
-
-      <button
-        onClick={() => router.push('/pricing')}
-        style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}
-      >
-        💳 Upgrade Plan
-      </button>
+    <div>
+      <h1>Dashboard</h1>
+      {user && <p>Welcome, {user.email}</p>}
+      <button onClick={handleLogout}>Log out</button>
     </div>
   );
-};
-
-export default Dashboard;
+}
