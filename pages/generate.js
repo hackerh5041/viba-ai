@@ -1,65 +1,66 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function Generate() {
-  const [topic, setTopic] = useState('');
-  const [style, setStyle] = useState('motivational');
+  const [prompt, setPrompt] = useState('');
+  const [videoScript, setVideoScript] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [videoURL, setVideoURL] = useState(null);
 
   const handleGenerate = async () => {
-    if (!topic) return alert('Please enter a video topic.');
-
     setLoading(true);
-    setVideoURL(null);
+    setVideoScript(null);
 
-    // Simulate AI video generation (replace this with real backend call later)
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      const data = await res.json();
       setLoading(false);
-      setVideoURL(`https://example.com/generated-video.mp4?topic=${topic}&style=${style}`);
-    }, 3000);
+
+      if (data.success) {
+        setVideoScript(data.data.script);
+      } else {
+        alert(data.error || 'Something went wrong.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Failed to generate video.');
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ padding: '40px', textAlign: 'center' }}>
-      <h1>🎥 Generate a Video</h1>
-
-      <input
-        type="text"
-        placeholder="Enter a video topic (e.g. Discipline, Purpose)"
-        value={topic}
-        onChange={(e) => setTopic(e.target.value)}
-        style={{ width: '80%', padding: '10px', marginBottom: '20px', fontSize: '16px' }}
+    <div style={{ padding: '40px', fontFamily: 'Arial' }}>
+      <h1>🎬 Generate Your AI Video Script</h1>
+      <textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Type your video topic or idea here..."
+        rows="6"
+        cols="60"
+        style={{ padding: '12px', fontSize: '16px' }}
       />
 
       <br />
-
-      <select
-        value={style}
-        onChange={(e) => setStyle(e.target.value)}
-        style={{ padding: '10px', fontSize: '16px' }}
-      >
-        <option value="motivational">Motivational</option>
-        <option value="masculine">Masculine Energy</option>
-        <option value="cinematic">Cinematic</option>
-      </select>
-
-      <br /><br />
-
       <button
         onClick={handleGenerate}
-        style={{ padding: '10px 30px', fontSize: '18px' }}
+        disabled={loading}
+        style={{
+          marginTop: '20px',
+          padding: '10px 20px',
+          fontSize: '16px',
+          cursor: 'pointer',
+        }}
       >
-        ⚡ Generate
+        {loading ? 'Generating...' : 'Generate Video Script'}
       </button>
 
-      {loading && <p style={{ marginTop: '20px' }}>⏳ Generating your video...</p>}
-
-      {videoURL && (
-        <div style={{ marginTop: '30px' }}>
-          <h3>✅ Video Ready:</h3>
-          <a href={videoURL} target="_blank" rel="noopener noreferrer">
-            {videoURL}
-          </a>
+      {videoScript && (
+        <div style={{ marginTop: '40px', background: '#f2f2f2', padding: '20px' }}>
+          <h3>📝 Generated Script:</h3>
+          <p>{videoScript}</p>
         </div>
       )}
     </div>
