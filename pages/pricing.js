@@ -1,31 +1,32 @@
-import { useState } from 'react';
+import React from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 
-export default function Pricing() {
-  const [loading, setLoading] = useState(false);
+const stripePromise = loadStripe('pk_live_51Rerg7E7PKB0vRxY0X...'); // replace this with your full publishable key
 
+const Pricing = () => {
   const handleCheckout = async () => {
-    setLoading(true);
-    const res = await fetch('/api/create-checkout-session', {
+    const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
     });
-    const data = await res.json();
 
-    if (data.id) {
-      window.location.href = data.url;
-    } else {
-      alert('Checkout failed.');
-    }
-    setLoading(false);
+    const session = await response.json();
+
+    const stripe = await stripePromise;
+    await stripe.redirectToCheckout({ sessionId: session.id });
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '50px' }}>
-      <h1>Upgrade to Pro</h1>
-      <p>Access full video AI generation tools.</p>
-      <h2>$10/month</h2>
-      <button onClick={handleCheckout} disabled={loading}>
-        {loading ? 'Redirecting...' : 'Subscribe Now'}
+    <div style={{ textAlign: 'center', paddingTop: '100px' }}>
+      <h1>Viba AI Pro - $20/month</h1>
+      <p>Unlock full access to realistic video generation</p>
+      <button 
+        onClick={handleCheckout} 
+        style={{ padding: '10px 20px', fontSize: '18px', cursor: 'pointer' }}
+      >
+        Subscribe Now
       </button>
     </div>
   );
-}
+};
+
+export default Pricing;
