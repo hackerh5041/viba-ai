@@ -1,7 +1,7 @@
 import React from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe('pk_live_51Rerg7E7PKB0vRxY0X...'); // replace this with your full publishable key
+const stripePromise = loadStripe('pk_live_51Rerg7E7PKB0vRxYGM1g...'); // Use your real publishable key
 
 const Pricing = () => {
   const handleCheckout = async () => {
@@ -16,12 +16,20 @@ const Pricing = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', paddingTop: '100px' }}>
+    <div style={{ textAlign: 'center', marginTop: '100px' }}>
       <h1>Viba AI Pro - $20/month</h1>
-      <p>Unlock full access to realistic video generation</p>
+      <p>Access realistic AI video generation tools</p>
       <button 
         onClick={handleCheckout} 
-        style={{ padding: '10px 20px', fontSize: '18px', cursor: 'pointer' }}
+        style={{
+          padding: '12px 24px',
+          fontSize: '18px',
+          backgroundColor: '#000',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}
       >
         Subscribe Now
       </button>
