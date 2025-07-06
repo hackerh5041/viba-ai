@@ -1,8 +1,12 @@
 export default function Login() {
   return (
-    <div style={{ padding: '4rem', textAlign: 'center' }}>
-      <h1>Login Page</h1>
-      <p>This is where users will log in or sign up.</p>
+    <div style={{ padding: '3rem', textAlign: 'center' }}>
+      <h1>Login to VibaAI</h1>
+      <form>
+        <input type="email" placeholder="Email" required /><br /><br />
+        <input type="password" placeholder="Password" required /><br /><br />
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 }
