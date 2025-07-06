@@ -1,68 +1,69 @@
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '../lib/firebase';
-import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
   const [scriptText, setScriptText] = useState('');
-  const [loading, setLoading] = useState(false);
   const [videoURL, setVideoURL] = useState(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        router.push('/login');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push('/login');
-  };
+  const [loading, setLoading] = useState(false);
 
   const handleGenerateVideo = async () => {
     setLoading(true);
     setVideoURL(null);
 
-    // 🔧 Simulate backend video creation (replace with real API call later)
-    setTimeout(() => {
-      const fakeVideo = 'https://www.w3schools.com/html/mov_bbb.mp4'; // fake preview
-      setVideoURL(fakeVideo);
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scriptText }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setVideoURL(data.videoURL);
+      } else {
+        alert(data.message || 'Failed to generate video');
+      }
+    } catch (err) {
+      alert('Something went wrong.');
+    } finally {
       setLoading(false);
-    }, 3000);
+    }
   };
 
-  if (!user) return <p>Loading...</p>;
-
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Welcome, {user.email}</h1>
-      <button onClick={handleLogout}>Logout</button>
+    <div style={{ padding: '2rem' }}>
+      <h1>🎬 AI Video Generator</h1>
 
-      <h2 style={{ marginTop: '30px' }}>🎬 Generate a Video</h2>
       <textarea
+        rows={8}
+        placeholder="Type your script here..."
         value={scriptText}
         onChange={(e) => setScriptText(e.target.value)}
-        placeholder="Paste your script here..."
-        rows={6}
-        style={{ width: '100%', marginTop: '10px' }}
+        style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
       />
-      <button onClick={handleGenerateVideo} disabled={loading} style={{ marginTop: '10px' }}>
+
+      <button
+        onClick={handleGenerateVideo}
+        disabled={loading || !scriptText.trim()}
+        style={{
+          marginTop: '1rem',
+          padding: '0.75rem 1.5rem',
+          fontSize: '1rem',
+          backgroundColor: '#0070f3',
+          color: '#fff',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+      >
         {loading ? 'Generating...' : 'Generate Video'}
       </button>
 
       {videoURL && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Preview:</h3>
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Your AI-Generated Video</h2>
           <video controls width="100%">
             <source src={videoURL} type="video/mp4" />
+            Your browser does not support the video tag.
           </video>
         </div>
       )}
