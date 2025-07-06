@@ -1,10 +1,9 @@
 export default function Pricing() {
   return (
-    <div style={{ padding: '3rem', textAlign: 'center' }}>
-      <h1>Pricing Plans</h1>
-      <p>🎬 First 2 videos are FREE</p>
-      <p>💳 $20/month for unlimited access</p>
-      <button>Subscribe Now</button>
+    <div style={{ padding: 40, fontFamily: 'sans-serif' }}>
+      <h1>💳 Upgrade to Premium</h1>
+      <p>Access full AI video generation for just $20/month.</p>
+      <button onClick={() => alert('Stripe payment coming soon!')}>Subscribe Now</button>
     </div>
   );
 }
